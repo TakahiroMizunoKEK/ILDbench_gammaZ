@@ -1,5 +1,5 @@
 ########################################################
-# cmake file for building ILDbench_tautau analysis package
+# cmake file for building ILDbench_gammaZ analysis package
 # @author Ete Remi, DESY
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
 ########################################################
