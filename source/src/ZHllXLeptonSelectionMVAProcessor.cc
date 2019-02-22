@@ -226,7 +226,7 @@ void ZHllXLeptonSelectionMVAProcessor::processEvent( LCEvent * evt ) {
     tupstr_gen << "elep1:elep2:coslep1:coslep2:ptz:cosz:mz:acop12:mrecoil" << ":"
 	       << "eisr1:eisr2" << ":"
 	       << "nhbb:nhww:nhgg:nhtt:nhcc:nhzz:nhaa:nhmm" << ":"
-	       << "mh:Ez:pdg0:lepElower"
+	       << "mh:Ez:pdg0:lepElower:cosISR1MC"
 	       << ends;
     hGen = new TNtupleD("hGen","",tupstr_gen.str().data());
   }
@@ -304,13 +304,21 @@ void ZHllXLeptonSelectionMVAProcessor::processEvent( LCEvent * evt ) {
     if (pdg == 25 && motherpdg == 0 && ioverlay == 0) {
       lortzHMC = lortz;
     }
-    if (i == 0) {
-      lortzISR1MC = lortz;
+	}  
+    
+    for (Int_t i=4;i<6;i++) {
+    MCParticle *mcPart2 = dynamic_cast<MCParticle*>(colMC->getElementAt(i));
+    Double_t energy2 = mcPart2->getEnergy();
+    TVector3 pv2 = TVector3(mcPart2->getMomentum());
+    TLorentzVector lortz2 = TLorentzVector(pv2,energy2);
+
+    if (i == 4) {
+      lortzISR1MC = lortz2;
     }
-    if (i == 1) {
-      lortzISR2MC = lortz;
+    if (i == 5) {
+      lortzISR2MC = lortz2;
     }
-  }
+   } 
 
   const Double_t fEcm = 500.;
   TLorentzVector lortzEcm = getLorentzEcm(fEcm);
@@ -358,6 +366,8 @@ void ZHllXLeptonSelectionMVAProcessor::processEvent( LCEvent * evt ) {
   data_gen[20]= lortzZMC.E();  
   data_gen[21]= pdg0;  
   data_gen[22]= lepElower;
+  data_gen[23]= lortzISR1MC.CosTheta();
+
 hGen->Fill(data_gen);
 
   // -- Read out PFO information --
