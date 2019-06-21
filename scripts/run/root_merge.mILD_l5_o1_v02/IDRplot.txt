@@ -1,0 +1,23 @@
+
+IDRplots
+
+meanvalue->made from p52///////??
+I01->p63	comp_resolution	oo
+I02->p81	sigma_thetadep
+I03->p81	sigma_phidep
+I04->p018	sigma_Edep
+I05->p58	mean_Edep
+I06->p018	Scale Unsertainty
+I072->p0182	Scale Unsertainty
+
+
+
+
+
+
+
+
+
+
+
+
