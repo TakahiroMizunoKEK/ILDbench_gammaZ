@@ -1,0 +1,25 @@
+
+
+
+
+p63	comp_resolution	oo
+(p51	sigma_theta/phi)
+p81	sigma_theta/phi
+p018	sigma_E
+p58	mean_E
+p52	sigma
+p61	sigma
+p51	sigma
+p51	sigma
+
+
+
+
+
+
+
+
+
+
+
+
