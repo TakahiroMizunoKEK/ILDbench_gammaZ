@@ -772,7 +772,12 @@ namespace mylib{
     recoElectron->setMass(mass);
     recoElectron->setCharge(charge);
     recoElectron->setType(94);
-
+#if 1 // 20190717 MIZUNO
+    TrackVec tracks = electron->getTracks();
+    Track * mytrack = 0;
+    if (tracks.size()) mytrack = tracks[0];
+    if (mytrack) recoElectron->addTrack(mytrack);
+#endif
   }
 
   void doPhotonRecovery(ReconstructedParticle *electron, LCCollection *colPFO, ReconstructedParticleImpl *recoElectron, Double_t fCosFSRCut, 
@@ -807,6 +812,12 @@ namespace mylib{
     recoElectron->setMass(mass);
     recoElectron->setCharge(charge);
     recoElectron->setType(94);
+#if 1 // 20190717 MIZUNO
+    TrackVec tracks = electron->getTracks();
+    Track * mytrack = 0;
+    if (tracks.size()) mytrack = tracks[0];
+    if (mytrack) recoElectron->addTrack(mytrack);
+#endif
 
   }
 

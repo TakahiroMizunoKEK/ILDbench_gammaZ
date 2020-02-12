@@ -1,0 +1,137 @@
+void gaus_Eresolution_PFO1stbin()
+{
+//=========Macro generated from canvas: c11/c11
+//=========  (Tue Apr 30 14:37:34 2019) by ROOT version6.08/06
+   TCanvas *c11 = new TCanvas("c11", "c11",10,32,625,502);
+   gStyle->SetOptFit(1);
+   c11->Range(-0.1511467,-39.19453,0.1261867,178.5528);
+   c11->SetFillColor(10);
+   c11->SetBorderMode(0);
+   c11->SetBorderSize(2);
+   c11->SetTickx(1);
+   c11->SetTicky(1);
+   c11->SetLeftMargin(0.17);
+   c11->SetRightMargin(0.08);
+   c11->SetTopMargin(0.08);
+   c11->SetBottomMargin(0.18);
+   c11->SetFrameLineWidth(3);
+   c11->SetFrameBorderMode(0);
+   c11->SetFrameLineWidth(3);
+   c11->SetFrameBorderMode(0);
+   
+   TH1D *hl11__2 = new TH1D("hl11__2","Energy Resolution of Photon",25,-0.2,0.2);
+   hl11__2->SetBinContent(0,15.4296);
+   hl11__2->SetBinContent(2,12.0086);
+   hl11__2->SetBinContent(6,12.0086);
+   hl11__2->SetBinContent(10,15.4296);
+   hl11__2->SetBinContent(11,27.4382);
+   hl11__2->SetBinContent(12,36.02579);
+   hl11__2->SetBinContent(13,113.1738);
+   hl11__2->SetBinContent(14,54.8764);
+   hl11__2->SetBinContent(15,106.3318);
+   hl11__2->SetBinContent(16,73.72701);
+   hl11__2->SetBinError(0,15.4296);
+   hl11__2->SetBinError(2,12.0086);
+   hl11__2->SetBinError(6,12.0086);
+   hl11__2->SetBinError(10,15.4296);
+   hl11__2->SetBinError(11,19.55196);
+   hl11__2->SetBinError(12,20.7995);
+   hl11__2->SetBinError(13,40.28626);
+   hl11__2->SetBinError(14,27.65064);
+   hl11__2->SetBinError(15,37.88469);
+   hl11__2->SetBinError(16,33.1134);
+   hl11__2->SetEntries(34);
+   
+   TPaveStats *ptstats = new TPaveStats(0.00286533,0.3628692,0.273639,0.9219409,"brNDC");
+   ptstats->SetName("stats");
+   ptstats->SetBorderSize(0);
+   ptstats->SetFillColor(10);
+   ptstats->SetLineWidth(3);
+   ptstats->SetTextAlign(12);
+   ptstats->SetTextFont(42);
+   TText *AText = ptstats->AddText("Entries = 34     ");
+   AText = ptstats->AddText("Mean  = 0.01317");
+   AText = ptstats->AddText("Std Dev   = 0.02613");
+   AText = ptstats->AddText("#chi^{2} / ndf =  2.78 / 4");
+   AText = ptstats->AddText("Constant = 83.28 #pm 19.61 ");
+   AText = ptstats->AddText("Mean     = 0.03287 #pm 0.02726 ");
+   AText = ptstats->AddText("Sigma    = 0.04321 #pm 0.02002 ");
+   ptstats->SetOptStat(1000001110);
+   ptstats->SetOptFit(111);
+   ptstats->Draw();
+   hl11__2->GetListOfFunctions()->Add(ptstats);
+   ptstats->SetParent(hl11__2);
+   
+   TF1 *PrevFitTMP4 = new TF1("PrevFitTMP","gaus",-0.104,0.104);
+   PrevFitTMP4->SetFillColor(10);
+   PrevFitTMP4->SetFillStyle(0);
+   PrevFitTMP4->SetMarkerStyle(21);
+   PrevFitTMP4->SetMarkerSize(0.5);
+
+   Int_t ci;      // for color index setting
+   TColor *color; // for color definition with alpha
+   ci = TColor::GetColor("#ff0000");
+   PrevFitTMP4->SetLineColor(ci);
+   PrevFitTMP4->SetLineWidth(3);
+   PrevFitTMP4->SetChisquare(2.780228);
+   PrevFitTMP4->SetNDF(4);
+   PrevFitTMP4->GetXaxis()->SetNdivisions(506);
+   PrevFitTMP4->GetXaxis()->SetLabelFont(42);
+   PrevFitTMP4->GetXaxis()->SetLabelOffset(0.015);
+   PrevFitTMP4->GetXaxis()->SetLabelSize(0.06);
+   PrevFitTMP4->GetXaxis()->SetTitleSize(0.07);
+   PrevFitTMP4->GetXaxis()->SetTitleFont(42);
+   PrevFitTMP4->GetYaxis()->SetNdivisions(506);
+   PrevFitTMP4->GetYaxis()->SetLabelFont(42);
+   PrevFitTMP4->GetYaxis()->SetLabelOffset(0.015);
+   PrevFitTMP4->GetYaxis()->SetLabelSize(0.06);
+   PrevFitTMP4->GetYaxis()->SetTitleSize(0.07);
+   PrevFitTMP4->GetYaxis()->SetTitleOffset(1.1);
+   PrevFitTMP4->GetYaxis()->SetTitleFont(42);
+   PrevFitTMP4->SetParameter(0,83.28227);
+   PrevFitTMP4->SetParError(0,19.61018);
+   PrevFitTMP4->SetParLimits(0,0,0);
+   PrevFitTMP4->SetParameter(1,0.03287475);
+   PrevFitTMP4->SetParError(1,0.02725731);
+   PrevFitTMP4->SetParLimits(1,0,0);
+   PrevFitTMP4->SetParameter(2,0.04321408);
+   PrevFitTMP4->SetParError(2,0.02001881);
+   PrevFitTMP4->SetParLimits(2,0,0.2613157);
+   hl11__2->GetListOfFunctions()->Add(PrevFitTMP4);
+   hl11__2->SetLineWidth(3);
+   hl11__2->SetMarkerStyle(21);
+   hl11__2->SetMarkerSize(0.5);
+   hl11__2->GetXaxis()->SetTitle("Energy Resolution of Photon");
+   hl11__2->GetXaxis()->SetRange(7,19);
+   hl11__2->GetXaxis()->SetNdivisions(506);
+   hl11__2->GetXaxis()->SetLabelFont(42);
+   hl11__2->GetXaxis()->SetLabelOffset(0.015);
+   hl11__2->GetXaxis()->SetLabelSize(0.06);
+   hl11__2->GetXaxis()->SetTitleSize(0.07);
+   hl11__2->GetXaxis()->SetTitleFont(42);
+   hl11__2->GetYaxis()->SetNdivisions(506);
+   hl11__2->GetYaxis()->SetLabelFont(42);
+   hl11__2->GetYaxis()->SetLabelOffset(0.015);
+   hl11__2->GetYaxis()->SetLabelSize(0.06);
+   hl11__2->GetYaxis()->SetTitleSize(0.07);
+   hl11__2->GetYaxis()->SetTitleOffset(1.1);
+   hl11__2->GetYaxis()->SetTitleFont(42);
+   hl11__2->GetZaxis()->SetLabelFont(42);
+   hl11__2->GetZaxis()->SetLabelOffset(0.015);
+   hl11__2->GetZaxis()->SetLabelSize(0.06);
+   hl11__2->GetZaxis()->SetTitleSize(0.07);
+   hl11__2->GetZaxis()->SetTitleOffset(1.1);
+   hl11__2->GetZaxis()->SetTitleFont(42);
+   hl11__2->Draw("");
+   
+   TPaveText *pt = new TPaveText(0.01,0.9393038,0.4297135,0.995,"blNDC");
+   pt->SetName("title");
+   pt->SetBorderSize(0);
+   pt->SetFillColor(0);
+   pt->SetLineWidth(3);
+   AText = pt->AddText("Energy Resolution of Photon");
+   pt->Draw();
+   c11->Modified();
+   c11->cd();
+   c11->SetSelected(c11);
+}

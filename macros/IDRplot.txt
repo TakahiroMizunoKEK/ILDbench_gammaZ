@@ -1,0 +1,51 @@
+
+IDRplots
+
+meanvalue->made from p52///////??
+I01->p63	comp_resolution	oo
+I02->p81	sigma_thetadep
+I03->p81	sigma_phidep
+I04->p018	sigma_Edep
+I05->p58	mean_Edep
+I06->p018	Scale Unsertainty
+I062->p0182	Scale Unsertainty
+(p52		mean_Thetadep(/PhiDep))->59
+
+I02->p812	sigma_thetadep cheated
+I02->p813	sigma_thetadep cheated
+
+
+p817		estimated sigma from muresolusion thetadep
+p818		estimated sigma from muresolusion including its thetadep tetadep
+
+
+Method Comparison
+07_01
+p64
+p65
+
+
+IDRplot12:p812	sigmaa_thetadep photon angle cheated
+IDRplot1?:p819  sigmaa_thetadep mu momentum cheated
+IDRplot19:p580	mean_Edep without CailbPFO -2GeVshift
+IDRplot20:
+
+F= Figure
+
+F02: IDR001AnaEff.cxx	mmumu_dist.
+F05: IDR002PhotonMCTrueE.cxx	MCTrue photon E dist.
+F06: GammaCalibp0_65.cxx  
+	 GammaCalibp0_66.cxx	Comp of 3 Methods
+F07: IDR003UnseenINM4p.cxx	ISR vs. M4' reco ISR
+F08: GammaCalibp0_68.cxx	Method Comparison PFO,Ang
+F09: GammaCalibp0_59.cxx	mean_Thetadep(/PhiDep) large only
+F10: GammaCalibp0_63.cxx	comp_calibrated_resolution
+F11: GammaCalibp0_580.cxx	calibrated mean_Edep
+F02: p
+F02: p
+F02: p
+F17: IDRFig17_2.C<-GammaCalibp0_0182.cxx
+F18: IDR63EScaleUncertainty.C <-GammaCalibp0_0182.cxx
+F02: p
+
+

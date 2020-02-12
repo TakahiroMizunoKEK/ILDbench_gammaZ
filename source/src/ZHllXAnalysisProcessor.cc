@@ -34,6 +34,8 @@
 
 
 #include "Utilities.h"
+//#include "getSigmaP.cc"
+double  getSigmaP(ReconstructedParticle const *);
 
 using namespace lcio ;
 using namespace marlin ;
@@ -153,10 +155,20 @@ void ZHllXAnalysisProcessor::processEvent( LCEvent * evt ) {
   static TNtupleD *hAnl = 0;
   if (!hAnl) {
     stringstream tupstr_anl;
-    tupstr_anl << "mz:pz:cosz:phiz:mx:px:cosx:phix"   << ":"
-	       << "leptype:mvalep1:mvalep2" << ":"
-	       << "coslep1:coslep2:mzgen:pdg0:coslep1mc:coslep2mc:lep1EMC:lep2EMC:lep1EAnl:lep2EAnl" << ":"
-	       << "ea:cosa:coneen:coneec:coslarge:eratiolarge"
+    tupstr_anl << "mz:pz:cosz:phiz:mx:px:"  //00->05
+	       << "cosx:phix:leptype:mvalep1:mvalep2:"  //10
+	       << "coslep1:coslep2:mzgen:pdg0:coslep1mc:" //15
+	       << "coslep2mc:cosphoton:coneen:coneec:coslarge:" //20
+	       << "eratiolarge:sinlep1:sinlep2:sinlep1mc:sinlep2mc:" //25
+	       << "sinphoton:ISR1EMC:ISR2EMC:lep1EAnl:lep1PAnl:" //30 
+	       << "lep1thetaAnl:lep1phiAnl:lep2EAnl:lep2PAnl:lep2thetaAnl:" //35
+	       << "lep2phiAnl:photonEAnl:photonPAnl:photonthetaAnl:photonphiAnl:" //40
+	       << "lep1EMC:lep1PMC:lep1thetaMC:lep1phiMC:lep2EMC:" //45
+	       << "lep2PMC:lep2thetaMC:lep2phiMC:photonEMC:photonPMC:" //50
+	       << "photonthetaMC:photonphiMC:ISRphotonEMC:ISRphotonPMC:nPhoton:" //55
+	       << "photonOrigEAnl:photonOrigPAnl:photonOrigthetaAnl:photonOrigphiAnl:photonHCalEnergy:" //60
+	       << "photonECalEnergy:lep1PzAnl:lep2PzAnl:photonPzAnl:" //65
+	       << "ISRphotonPxMC:ISRphotonPyMC:ISRphotonPzMC:lep1dPAnl:lep2dPAnl" //70
 	       << ends;
     hAnl = new TNtupleD("hAnl","",tupstr_anl.str().data());
   }
@@ -216,13 +228,21 @@ void ZHllXAnalysisProcessor::processEvent( LCEvent * evt ) {
     if (pdg < 0 && motherpdg == 25 && ioverlay == 0) {
       lortzJ2MC = lortz;
     }
-    if (i == 0) {
-      lortzISR1MC = lortz;
+	}
+    /*for (Int_t i=4;i<6;i++) {
+    MCParticle *mcPart2 = dynamic_cast<MCParticle*>(colMC->getElementAt(i));    
+    Double_t energy2 = mcPart2->getEnergy();
+    TVector3 pv2 = TVector3(mcPart2->getMomentum());
+    TLorentzVector lortz2 = TLorentzVector(pv2,energy2);
+
+    if (i == 4) {
+      lortzISR1MC = lortz2;
     }
-    if (i == 1) {
-      lortzISR2MC = lortz;
+    if (i == 5) {
+      lortzISR2MC = lortz2;
     }
-  }
+   } */ 
+
   // get Higgs decay modes
   std::vector<Int_t> nHDecay;
   nHDecay = getHiggsDecayModes(colMC);
@@ -309,12 +329,29 @@ void ZHllXAnalysisProcessor::processEvent( LCEvent * evt ) {
   LCCollection *colPho = evt->getCollection(_colPhotons);
   TLorentzVector lortzPhoton(0.,0.,0.,0.);
   Double_t coneEN=-1,coneEC=-1,cosThetaWithLargeCone=-2,energyRatioWithLargeCone=-2;
+  TLorentzVector lortzPhotonOrig(0.,0.,0.,0.);
+  int nPhoton = 0;
+        float ECalEnergy,HCalEnergy;
+        ECalEnergy =0;
+        HCalEnergy =0;
+
   if (colPho && colPho->getNumberOfElements() > 0) {
+    nPhoton=colPho->getNumberOfElements();
     ReconstructedParticle *recoPhoton = dynamic_cast<ReconstructedParticle*>(colPho->getElementAt(0));
     lortzPhoton = getLorentzVector(recoPhoton);
     std::vector<lcio::ReconstructedParticle*> photons = recoPhoton->getParticles();
     ReconstructedParticle *thePhoton = photons.at(0);
-    TLorentzVector lortzPhotonOrig = getLorentzVector(thePhoton);
+
+	ClusterVec clv= thePhoton -> getClusters();
+	for (int i=0;i<clv.size();i++){
+		Cluster* cl = clv[i];
+		FloatVec flv = 	cl -> getSubdetectorEnergies();
+		HCalEnergy+=flv[1];		
+		ECalEnergy+=flv[0];		
+	}
+
+    //TLorentzVector lortzPhotonOrig = getLorentzVector(thePhoton);
+    lortzPhotonOrig = getLorentzVector(thePhoton);
     // get photon cone energies
     Bool_t woFSR = kFALSE;
     Double_t coneEnergy0[3] = {0.,0.,0.};
@@ -322,12 +359,33 @@ void ZHllXAnalysisProcessor::processEvent( LCEvent * evt ) {
     Double_t pLargeCone[4]  = {0.,0.,0.,0.};
     Int_t nConePhoton = 0;
     getConeEnergy(thePhoton,colPFO,fCosSmallCone,woFSR,coneEnergy0,pFSR,fCosLargeCone,pLargeCone,nConePhoton);
+
+
     coneEN     = coneEnergy0[1];
     coneEC     = coneEnergy0[2];
     TLorentzVector lortzLargeCone = TLorentzVector(pLargeCone[0],pLargeCone[1],pLargeCone[2],pLargeCone[3]);
     cosThetaWithLargeCone = getCosTheta(lortzPhotonOrig,lortzLargeCone);
     energyRatioWithLargeCone = lortzPhotonOrig.E()/(lortzPhotonOrig.E()+lortzLargeCone.E());
-  }
+ 
+ 
+	//*added20181122
+    for (Int_t i=4;i<6;i++) {
+    MCParticle *mcPart2 = dynamic_cast<MCParticle*>(colMC->getElementAt(i));
+    Double_t energy2 = mcPart2->getEnergy();
+    TVector3 pv2 = TVector3(mcPart2->getMomentum());
+    TLorentzVector lortz2 = TLorentzVector(pv2,energy2);
+
+    if (i == 4) {
+      lortzISR1MC = lortz2;
+    }
+    if (i == 5) {
+      lortzISR2MC = lortz2;
+    }
+   }
+	//end*	
+
+
+ }
 #endif  
 
 #if 0
@@ -386,12 +444,37 @@ void ZHllXAnalysisProcessor::processEvent( LCEvent * evt ) {
   TLorentzVector lortzLep2 = getLorentzVector(leptonPlus);
   TLorentzVector lortzZ = lortzLep1 + lortzLep2;
 
+  double lep1dPAnl = getSigmaP(leptonMinus);
+  double lep2dPAnl = getSigmaP(leptonPlus);
+
   const Double_t fEcm = 500.;
   TLorentzVector lortzEcm = getLorentzEcm(fEcm);
   TLorentzVector lortzMis = lortzEcm-lortzZ-lortzVis-lortzPhoton;
   TLorentzVector lortzRecoil = lortzEcm-lortzZ;
   TLorentzVector lortzRecoilMC = lortzEcm-lortzZMC;
-  
+ 
+  double v22,v23,v24,v25,v26,photonEMC,photonPMC,photonthetaMC,photonphiMC;
+  TLorentzVector lortzphotonmc;
+  TLorentzVector ISRphotonmc;
+  v22 = sqrt(1.-pow(lortzLep1.CosTheta(),2));
+  v23 = sqrt(1.-pow(lortzLep2.CosTheta(),2));
+  v24 = sqrt(1.-pow(lortzLep1MC.CosTheta(),2));
+  v25 = sqrt(1.-pow(lortzLep2MC.CosTheta(),2));
+  v26 = sqrt(1.-pow(lortzPhoton.CosTheta(),2));
+ 
+  if(lortzISR1MC.E()>lortzISR2MC.E()){
+	lortzphotonmc=lortzISR1MC;
+	ISRphotonmc=lortzISR2MC;
+	}else{
+	lortzphotonmc=lortzISR2MC;
+	ISRphotonmc=lortzISR1MC;
+	}
+  photonEMC=lortzphotonmc.E();
+  photonPMC=lortzphotonmc.P();
+  photonthetaMC=lortzphotonmc.Theta();
+  photonphiMC=lortzphotonmc.Phi();
+
+
   Double_t data_anl[100];
   data_anl[ 0] = lortzZ.M();
   data_anl[ 1] = lortzZ.P();
@@ -410,17 +493,66 @@ void ZHllXAnalysisProcessor::processEvent( LCEvent * evt ) {
   data_anl[14] = pdg0; 
   data_anl[15] = lortzLep1MC.CosTheta();
   data_anl[16] = lortzLep2MC.CosTheta();
-  data_anl[17] = lortzLep1MC.E();
-  data_anl[18] = lortzLep2MC.E();
-  data_anl[19] = lortzLep1.E();
-  data_anl[20] = lortzLep2.E();
-  data_anl[21] = lortzPhoton.E();
-  data_anl[22] = lortzPhoton.CosTheta();
-  data_anl[23] = coneEN;
-  data_anl[24] = coneEC;
-  data_anl[25] = cosThetaWithLargeCone;
-  data_anl[26] = energyRatioWithLargeCone;
-  hAnl->Fill(data_anl);
+  data_anl[17] = lortzPhoton.CosTheta();
+  data_anl[18] = coneEN;
+  data_anl[19] = coneEC;
+  data_anl[20] = cosThetaWithLargeCone;
+  data_anl[21] = energyRatioWithLargeCone;
+  data_anl[22] = v22;
+  data_anl[23] = v23;
+  data_anl[24] = v24;
+  data_anl[25] = v25;
+  data_anl[26] = v26;
+  data_anl[27] = lortzISR1MC.P();
+  data_anl[28] = lortzISR2MC.P();
+  data_anl[29] = lortzLep1.E();
+  data_anl[30] = lortzLep1.P();
+  data_anl[31] = lortzLep1.Theta();
+  data_anl[32] = lortzLep1.Phi();
+  data_anl[33] = lortzLep2.E();
+  data_anl[34] = lortzLep2.P();
+  data_anl[35] = lortzLep2.Theta();
+  data_anl[36] = lortzLep2.Phi();
+  data_anl[37] = lortzPhoton.E();
+  data_anl[38] = lortzPhoton.P();
+  data_anl[39] = lortzPhoton.Theta();
+  data_anl[40] = lortzPhoton.Phi();
+
+  data_anl[41] = lortzLep1MC.E();
+  data_anl[42] = lortzLep1MC.P();
+  data_anl[43] = lortzLep1MC.Theta();
+  data_anl[44] = lortzLep1MC.Phi();
+  data_anl[45] = lortzLep2MC.E();
+  data_anl[46] = lortzLep2MC.P();
+  data_anl[47] = lortzLep2MC.Theta();
+  data_anl[48] = lortzLep2MC.Phi();
+  data_anl[49] = photonEMC;
+  data_anl[50] = photonPMC;
+  data_anl[51] = photonthetaMC;
+  data_anl[52] = photonphiMC;  
+  data_anl[53] = ISRphotonmc.E();
+  data_anl[54] = ISRphotonmc.P();
+  
+  data_anl[55] = nPhoton;
+  data_anl[56] = lortzPhotonOrig.E();
+  data_anl[57] = lortzPhotonOrig.P();
+  data_anl[58] = lortzPhotonOrig.Theta();
+  data_anl[59] = lortzPhotonOrig.Phi();
+
+  data_anl[60] = HCalEnergy;		
+  data_anl[61] = ECalEnergy;		
+  data_anl[62] = lortzLep1.Pz();
+  data_anl[63] = lortzLep2.Pz();
+  data_anl[64] = lortzPhoton.Pz();
+
+  data_anl[65] = ISRphotonmc.Px();
+  data_anl[66] = ISRphotonmc.Py();
+  data_anl[67] = ISRphotonmc.Pz();
+
+  data_anl[68] = lep1dPAnl;
+  data_anl[69] = lep2dPAnl;
+
+ hAnl->Fill(data_anl);
   
   //-- note: this will not be printed if compiled w/o MARLINDEBUG=1 !
 

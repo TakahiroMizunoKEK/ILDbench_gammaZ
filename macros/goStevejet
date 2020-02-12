@@ -1,0 +1,151 @@
+#!/bin/bash
+
+
+model=ILD_l5_o1_v02
+#model=ILD_s5_o1_v02
+
+mkdir -p sublog log data_output rootfilejet tmpxml myxml data_list
+
+inputxml=zh_llx.xml
+
+ecm=500
+
+#jobque=l
+jobque=s
+
+
+submit() {
+
+    process=$1
+    dirin=$2
+    prefix=$3
+    nperjob=$4
+    mode=$5
+
+    #    flist=data_list/${process}.list
+    flist=data_list/${process}.m${model}.list    
+#    echo "search data in ${dirin}"
+    #    `find ${dirin}/ -name ${prefix}*${process}.*.slcio | sort -n > ${flist}`
+    `find ${dirin}/ -name ${prefix}*.m${model}.*${process}.*.slcio | sort -n > ${flist}`
+
+    ntot=`more ${flist} | wc -l`
+    echo "total number of files in ${process}: " ${ntot}
+    echo "number of files per job: " ${nperjob}    
+
+    if [ ${ntot} -le 0 ] ; then
+	echo "WARNING: there's no data found in process ${process}! Please have a check."
+    fi
+    
+    if [ ${nperjob} -le 0 ] ; then
+	nperjob=${ntot}
+	echo "number of files per job is reset to ${ntot}"
+    fi
+
+    njobs=$[(${ntot}-1)/${nperjob}+1]
+    echo "total number of jobs for ${process}: " ${njobs}    
+
+    for (( i=1; i<=${njobs}; i++ )) ; do
+	ifirst=$[${nperjob}*($i-1)+1]
+	ilasttmp=$[${ifirst}+${nperjob}-1]
+	if [ ${ilasttmp} -le ${ntot} ] ; then
+	    ilast=${ilasttmp}
+	else
+	    ilast=${ntot}
+	fi
+	log=./sublog/${process}"_"`printf %03d $i`.log
+	echo "submitting job `printf %03d ${i}`: from ${ifirst} to ${ilast}"
+	bsub -q ${jobque} -J "ana_${process}_"`printf %03d $i` -o $log \
+	     "./goMarlinjet ${flist} ${ifirst} ${ilast} ${inputxml}"
+	     #	     "./goMarlinOvl ${flist} ${ifirst} ${ilast} ${inputxml}"	     	     
+	if [ "x${mode}" == "xtest" ] ; then
+	    echo "Test Mode Activated..."
+	    break
+	fi
+    done
+}
+
+#         #process              #data dir          #prefix    #nf per job
+#submit     2f_z_l         data_dbd_${ecm}        rv           1
+
+
+##for test
+goTest() {
+    submit     2f_z_h         data_ildopt_500        rv           1	    
+#    submit     4f_ww_sl     data_dbd_${ecm}          rv              1    test
+#    submit     4f_ww_l      data_dbd_${ecm}          rv              1    test
+#    submit     2f_z_h       data_dbd_${ecm}          rv              1    test
+}
+
+###-------------------------------------
+###signal
+###-------------------------------------
+goSig() {
+    #data_dir_in=data_dirac_${ecm}
+    #    data_dir_in=l5
+    data_dir_in=data_ildopt_500    
+    #data_prefix=Dirac-Dst
+    data_prefix=rv
+    n_per_job=10
+    #psg="e1e1h e2e2h"    
+    psg="2f_z_l"    
+    for p in ${psg} ; do
+        echo "Process: " $p
+        submit ${p} ${data_dir_in} ${data_prefix} ${n_per_job}
+    done
+}
+
+###-------------------------------------
+###SM background
+###-------------------------------------
+goBkg() {
+    p2f="2f_z_l 2f_z_bhabhag 2f_z_h"
+    p4f="4f_zz_l 4f_zz_sl 4f_zz_h 4f_ww_l 4f_ww_sl 4f_ww_h 4f_zzorww_l 4f_zzorww_h 4f_sw_l 4f_sw_sl 4f_sze_l 4f_sze_sl 4f_sznu_l 4f_sznu_sl 4f_szeorsw_l"
+    p6f="6f*"
+    #    psm="$p2f $p4f $p6f"
+    psm="$p2f $p4f"    
+
+    #echo $pall
+
+    #    data_dir_in=data_dbd_${ecm}_nomerge
+    data_dir_in=data_ildopt_500
+    data_prefix=rv
+    #    n_per_job=10
+    n_per_job=1
+
+    for p in ${psm} ; do
+        echo "Process: " $p
+        submit ${p} ${data_dir_in} ${data_prefix} ${n_per_job}
+    done
+}
+	
+
+
+########
+#goTest
+#goSig
+#goBkg
+
+task=$1
+
+if [ "x${task}" == "xtest" ] ; then
+    echo "Going to do some test jobs..."
+    goTest
+elif [ "x${task}" == "xsig" ] ; then
+    echo "Going to do all jobs for signal..."
+    goSig
+elif [ "x${task}" == "xbkg" ] ; then
+    echo "Going to do all jobs for background..."
+    goBkg
+elif [ "x${task}" == "xall" ] ; then
+    echo "Going to do all jobs for both signal and background..."
+    goSig
+    goBkg
+elif [ "x${task}" == "xclear" ] ; then
+    echo "Going to clear up something..."
+    rm -rf data_list data_output log myxml tmpxml sublog rootfile    
+else
+    echo "Please let me know what to do..."
+    echo "Supported options: ./goSteve test; ./goSteve sig; ./goSteve bkg; ./goSteve all; ./goSteve clear"
+    echo "Good Luck!"
+fi
+    
